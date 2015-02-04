@@ -202,10 +202,10 @@ Ext.define('MapApp.controller.OL3MapController', {
             var object=new Object();
             object.operation='PUBLISH_FEATURE';
             object.id=feature.getId();
-            object.name=feature.getName();
+            object.name=feature.get('name');
             object.coordinateX=feature.getGeometry().getCoordinates()[0];
             object.coordinateY=feature.getGeometry().getCoordinates()[1];
-            me.fireEvent('onMessageRequest',object,me);
+            me.fireEvent('onMessageRequest',Ext.JSON.encode(object),me);
         }
     },
 
@@ -226,7 +226,7 @@ Ext.define('MapApp.controller.OL3MapController', {
     onMessageRequest: function (e) {
         var me = this;
         console.log('OL3MapController recibido un MessageRequest desde MainController. Remitiendo a IoCOntroller:' + e);
-        me.fireEvent('onMessageRequest', e, me);
+        me.fireEvent('onMessageRequest', Ext.JSON.encode(e), me);
     },
 
     //MAP EVENT HANDLERS!!!
@@ -333,10 +333,12 @@ Ext.define('MapApp.controller.OL3MapController', {
         var object=new Object();
 
         evt.feature.setId(id);
+        evt.feature.set('name',id);
         // evt.feature.setName('Feature '+id); CANNOT USE THE CUSTOM ATTRIBUTE NAME FOR THE FEATURE OR I DONT KNOW HOW TO
         // creates unique id's
         object.operation='FEATURE_DRAW';
         object.id = id;
+        object.name = id;
         object.coordinateX=evt.feature.getGeometry().getCoordinates()[0];
         object.coordinateY=evt.feature.getGeometry().getCoordinates()[1];
         //object.name=evt.feature.Name();
