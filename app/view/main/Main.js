@@ -56,18 +56,6 @@ Ext.define('MapApp.view.main.Main', {
                         itemId: 'MAP_PUBLISH_FEATURES',
                         handler: 'onClickButton'
                     }]
-                },
-                {
-                    xtype: 'panel',
-                    itemId: 'MAP_EVENT_PANEL',
-                    width: 250,
-                    height: 400,
-                    split: true,
-                    autoScroll:true,
-                    items: [{
-                        html: '<ul><li>LIST OF EVENTS</li></ul>'
-                    }
-                    ]
                 }
             ]
         },
@@ -84,6 +72,18 @@ Ext.define('MapApp.view.main.Main', {
             itemId: 'status_panel',
             split:true,
             items: [
+                {
+                    //isStandalone CAPTION
+                    xtype:'label',
+                    text:'Op.Mode: ',
+                    itemId:'isStandalone_CAPTION'
+                },
+                {
+                    //isStandalone CAPTION
+                    xtype:'label',
+                    text:'',
+                    itemId:'isStandalone'
+                },
                 {
                     //isDrawing CAPTION
                     xtype:'label',
@@ -121,6 +121,19 @@ Ext.define('MapApp.view.main.Main', {
                     text:'0',
                     itemId:'LAT'
                 }
+            ]
+        },
+        {
+            xtype: 'panel',
+            itemId: 'MAP_EVENT_PANEL',
+            region:'south',
+            width: 250,
+            height: 250,
+            split: true,
+            autoScroll:true,
+            items: [{
+                html: '<p><ul><li>LIST OF EVENTS</li></ul></p>'
+            }
             ]
         }
     ]

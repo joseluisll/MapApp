@@ -24,11 +24,20 @@ Ext.define('MapApp.view.main.MainController', {
                 '#IoController': {
                     onProcessHTML5Message:function(e) {
                         me.onProcessHTML5Message(e);
+                    },
+                    onSlaveMode:function(e) {
+                        me.onSlaveMode(e);
+                    },
+                    onStandAloneMode:function(e) {
+                        me.onStandaloneMode(e);
                     }
                 },
                 '#OL3MapController': {
-                    onUpdateStatusPanel:function(evt) {
-                        me.onUpdateStatusPanel(evt);
+                    onUpdateStatusPanel: {
+                        buffer: 200,
+                        fn: function (evt) {
+                            me.onUpdateStatusPanel(evt);
+                        }
                     }
                 }
             }
@@ -78,9 +87,14 @@ Ext.define('MapApp.view.main.MainController', {
         var me = this;
         var drawingMode=evt.isDrawing;
         if(drawingMode===null || drawingMode ===undefined) {
-            cconsole.error('There is something wrong with the Update Status Panel Event...');
+            console.error('There is something wrong with the Update Status Panel Event...');
             return;
         }
+
+        var isStandalone = Ext.ComponentQuery.query('#isStandalone')[0];
+
+        isStandalone.setText(me.operatingmode);
+
         var isDrawing = Ext.ComponentQuery.query('#isDrawing')[0];
         if(drawingMode) {
             isDrawing.setText('TRUE ');
@@ -102,6 +116,14 @@ Ext.define('MapApp.view.main.MainController', {
         var label_lat = Ext.ComponentQuery.query('#LAT')[0];
         label_lat.setText(lat+' ');
 
+    },
+    onSlaveMode:function (evt) {
+        var me=this;
+        me.operatingmode='SLAVE ';
+    },
+    onStandaloneMode:function(evt) {
+        var me = this;
+        me.operatingmode='STANDALONE ';
     }
 
 });

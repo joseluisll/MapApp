@@ -62,8 +62,16 @@ Ext.define('MapApp.Application', {
 *        dojo.require("esri.geometry.Point");
 *        dojo.require("dojo.domReady!")
 *        dojo.ready(this.getMapControllerController().initMap);*/
+        var mapcontroller=me.getOL3MapControllerController();
+        var iocontroller=me.getIoControllerController();
 
-        //this.getMapControllerController().initMap();
-        this.getOL3MapControllerController().initMap();
+        mapcontroller.initMap();
+
+        //DELAYED EVENTS THAT DO NOT WORK UNTIL ALL CONTROLLERS ARE INITIALIZED AND READY.
+        if(window.opener===null) {
+            iocontroller.fireEvent('onStandAloneMode',iocontroller);
+        }else{
+            iocontroller.fireEvent('onSlaveMode',iocontroller);
+        }
     }
 });

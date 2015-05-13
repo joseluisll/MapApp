@@ -5,6 +5,7 @@ Ext.define('MapApp.controller.OL3MapController', {
         var me = this;
         me.missionwindow = null;
         me.isDrawing = false;
+        me.operatingmode='STANDALONE';
         me.listen({
             'controller': {
                 '#MainController': {
@@ -20,6 +21,15 @@ Ext.define('MapApp.controller.OL3MapController', {
                 '#IoController': {
                     onProcessHTML5Message: function (e) {
                         me.onProcessHTML5Message(e);
+                    },
+                    onKeepAliveError:function(e) {
+                        me.onKeepAliveError(e);
+                    },
+                    onStandAloneMode:function(e) {
+                        me.onStandAloneMode(e);
+                    },
+                    onSlaveMode:function(e) {
+                        me.onSlaveMode(e);
                     }
                 }
             }
@@ -192,6 +202,19 @@ Ext.define('MapApp.controller.OL3MapController', {
         console.log('Selected a feature from Mission APP.');
 
     },
+    onStandAloneMode:function(evt)
+    {
+        //WE ARE ON STANDALONE MODE!!!.
+        var me=this;
+        me.operatingmode='STANDALONE';
+        console.debug('OL3MapController operating in Standalone Mode...');
+    },
+    onSlaveMode:function(evt) {
+        //WE ARE ON SLAVE MODE.
+        var me=this;
+        me.operatingmode='SLAVE';
+        console.debug('OL3MapController operating in Slave Mode...');
+    },
     OnMapPublishFeatures:function(evt) {
         var me=this;
 
@@ -205,7 +228,7 @@ Ext.define('MapApp.controller.OL3MapController', {
             object.name=feature.get('name');
             object.coordinateX=feature.getGeometry().getCoordinates()[0];
             object.coordinateY=feature.getGeometry().getCoordinates()[1];
-            me.fireEvent('onMessageRequest',Ext.JSON.encode(object),me);
+            me.fireEvent('onMessageRequest',object,me);
         }
     },
 
@@ -226,7 +249,7 @@ Ext.define('MapApp.controller.OL3MapController', {
     onMessageRequest: function (e) {
         var me = this;
         console.log('OL3MapController recibido un MessageRequest desde MainController. Remitiendo a IoCOntroller:' + e);
-        me.fireEvent('onMessageRequest', Ext.JSON.encode(e), me);
+        me.fireEvent('onMessageRequest', e, me);
     },
 
     //MAP EVENT HANDLERS!!!
@@ -272,7 +295,7 @@ Ext.define('MapApp.controller.OL3MapController', {
         if (!me.isDrawing) {
             var object=new Object();
             object.operation='MAP_CLICK';
-            me.fireEvent('onMessageRequest', Ext.JSON.encode(object), me);
+            me.fireEvent('onMessageRequest', object, me);
             var feature = me.map.forEachFeatureAtPixel(evt.pixel, me.onFeatureClick, me);
             if (feature === undefined) {
                 console.log('Click on the MAP...');
@@ -287,7 +310,6 @@ Ext.define('MapApp.controller.OL3MapController', {
         //console.log('Map Event PointerMove...')
         evt.isDrawing = me.isDrawing;
         me.fireEvent('onUpdateStatusPanel', evt);
-
     },
 
     onMapDoubleClick: function (evt) {
@@ -304,7 +326,7 @@ Ext.define('MapApp.controller.OL3MapController', {
         var me = this;
         console.log('Click on a feature of the MAP...');
         evt.operation='FEATURE_CLICK';
-        me.fireEvent('onMessageRequest', Ext.JSON.encode(evt), me);
+        me.fireEvent('onMessageRequest', evt, me);
     },
     onFeatureSelected: function (evt) {
         var me = this;
@@ -312,7 +334,7 @@ Ext.define('MapApp.controller.OL3MapController', {
         var object=new Object();
         object.operation='FEATURE_SELECTED';
         object.id=evt.element.getId();
-        me.fireEvent('onMessageRequest', Ext.JSON.encode(object), me);
+        me.fireEvent('onMessageRequest', object, me);
     },
     onFeatureUnSelected: function (evt) {
         var me = this;
@@ -320,7 +342,7 @@ Ext.define('MapApp.controller.OL3MapController', {
         var object=new Object();
         object.operation='FEATURE_UNSELECTED';
         object.id=evt.element.getId();
-        me.fireEvent('onMessageRequest', Ext.JSON.encode(object), me);
+        me.fireEvent('onMessageRequest', object, me);
     },
     onFeatureDraw: function (evt) {
         var me = this;
@@ -343,8 +365,8 @@ Ext.define('MapApp.controller.OL3MapController', {
         object.coordinateY=evt.feature.getGeometry().getCoordinates()[1];
         //object.name=evt.feature.Name();
 
-        me.fireEvent('onMessageRequest', Ext.JSON.encode(object), me);
-        console.debug(Ext.JSON.encode(object));
+        me.fireEvent('onMessageRequest', object, me);
+
         function generateUUID(){
             var d = new Date().getTime();
             var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -355,6 +377,10 @@ Ext.define('MapApp.controller.OL3MapController', {
             return uuid;
         };
 
+    },
+    onKeepAliveError: function (evt) {
+        //THE KEEPALIVE FAILED. Let's cut the MAP down, we will close the window soon!.
+        window.close();
     }
 });
 
